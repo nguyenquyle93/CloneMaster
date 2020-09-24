@@ -3,6 +3,7 @@ module.exports = {
   copyright: 'Ant Design Admin  ©2020 zuiidea',
   logoPath: '/logo.svg',
   apiPrefix: '/api/v1',
+  experimentalDecorators: true,
   fixedHeader: true, // sticky primary layout header
 
   /* Layout configuration, specify which layout to use for route. */
@@ -36,4 +37,5 @@ module.exports = {
     ],
     defaultLanguage: 'en',
   },
+  
 }

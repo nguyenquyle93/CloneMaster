@@ -1,11 +1,15 @@
 import { Component } from 'react'
 import { Editor, Page } from 'components'
 import { convertToRaw } from 'draft-js'
-import {message, Row, Col, Card, Button, Input, Form } from 'antd'
+import { message, Row, Col, Card, Button, Input, AutoComplete } from 'antd'
 import { Trans } from '@lingui/react'
 import draftToHtml from 'draftjs-to-html'
+import htmlToDraft from 'html-to-draftjs'
+import { EditorState, ContentState } from 'draft-js'
 import draftToMarkdown from 'draftjs-to-markdown'
-import * as firebase from 'firebase';
+import * as firebase from 'firebase'
+import { connectData } from '../../components/FIrebase/firebaseConnect'
+
 
 export default class EditorPage extends Component {
   constructor(props) {
@@ -14,86 +18,176 @@ export default class EditorPage extends Component {
       editorContent: null,
       htmlContent: null,
       title: null,
+      data: [],
+      dataFilter: [],
     }
   }
 
-  onEditorStateChange = editorContent => {
-    this.setState({
-      editorContent: editorContent,
-      htmlContent: draftToHtml(convertToRaw(editorContent.getCurrentContent()))
+  componentWillMount() {
+    connectData.on('value', (notes) => {
+      var arrayData = []
+      notes.forEach((element) => {
+        const title = element.val().title
+        const content = element.val().content
+        const createAt = element.val().createAt
+        arrayData.push({
+          title: title,
+          content: content,
+          createAt: createAt,
+        })
+      })
+      this.setState({ data: arrayData })
     })
   }
 
-  handleInputChange = e => {
+  onEditorStateChange = (editorContent) => {
+    console.log('222222', editorContent)
     this.setState({
-      title : e.target.value
+      editorContent: editorContent,
+      htmlContent: draftToHtml(convertToRaw(editorContent.getCurrentContent())),
+    })
+  }
+
+  handleInputChange = (e) => {
+    this.setState({
+      title: e.target.value,
     })
   }
 
   handleRequest = () => {
-    var connectData = firebase.database().ref('pages1');
     connectData.push({
       title: this.state.title,
       content: this.state.htmlContent,
-    });
-    message.success('Bạn đã đăng bài thành công !!!');
+      createAt: new Date().getTime(),
+    })
+    message.success('Bạn đã đăng bài thành công !!!')
+  }
+
+  handleEdit = () => {
+    connectData.push({
+      title: this.state.title,
+      content: this.state.htmlContent,
+      createAt: new Date().getTime(),
+    })
+    message.success('Bạn đã đăng bài thành công !!!')
+  }
+
+  //   handleDelete = () => {
+  // connectData.on('child_removed', (notes) => {
+  //     deleteComment(postElement, data.key)
+  // })
+  //     message.success('Bạn đã đăng bài thành công !!!')
+  //   }
+
+  onSelect = (value) => {
+    const a = this.state.data.filter((item) => {
+      return item.title === value.toString()
+    })
+    const content = ContentState.createFromText(a[0].content)
+    this.setState({
+      dataFilter: a,
+      title: a[0].title,
+      editorContent: EditorState.createWithContent(content),
+    })
+    
   }
 
   render() {
-    const { editorContent } = this.state
+    const { editorContent, dataFilter, title } = this.state
     const colProps = {
       lg: 12,
       md: 24,
       style: {
         marginBottom: 32,
-      }
+      },
     }
     const textareaStyle = {
       minHeight: 496,
       width: '100%',
       background: '#f7f7f7',
       borderColor: '#F1F1F1',
-      padding: '16px 8px'
+      padding: '16px 8px',
     }
-
+    console.log('11111', dataFilter)
     return (
       <Page inner>
         <Row>
           <Col>
-          <Button
-                size="large"
-                type="primary"
-                style={{ width: 100 }}
-                onClick={this.handleRequest}
-              >
-                <Trans>Send</Trans>
-              </Button>
+            <Button
+              size="large"
+              type="primary"
+              style={{ width: 100 }}
+              onClick={this.handleRequest}
+            >
+              <Trans>Create</Trans>
+            </Button>
           </Col>
           <Col>
-          <Input
-                  size="large"
-                  onChange={this.handleInputChange}
-                  style={{ width: 500 }}
-                  placeholder= "tile input"
-                />
+            <Button
+              size="large"
+              style={{
+                width: 100,
+                marginLeft: '10px',
+                backgroundColor: '#00FA9A',
+              }}
+              onClick={this.handleEdit}
+            >
+              <Trans>Edit</Trans>
+            </Button>
+          </Col>
+          <Col>
+            <Button
+              size="large"
+              type="danger"
+              style={{ width: 100, marginLeft: '10px' }}
+              onClick={this.handleDelete}
+            >
+              <Trans>Delete</Trans>
+            </Button>
+          </Col>
+          <Col md={8}>
+            <Input
+              size="large"
+              value={title}
+              onChange={this.handleInputChange}
+              style={{ marginLeft: '10px' }}
+              placeholder="tile input"
+            />
+          </Col>
+          <Col md={10}>
+            <AutoComplete
+              style={{ width: 500 }}
+              size="large"
+              placeholder="tile search"
+              options={this.state.data?.map((item) => {
+                return { ...item, value: item.title }
+              })}
+              onSelect={this.onSelect}
+              filterOption={(inputValue, option) =>
+                option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+                -1
+              }
+            />
           </Col>
         </Row>
         <Row gutter={32}>
-          <Col {...colProps}>
-            <Card title="Editor" style={{ overflow: 'visible' }}>
+          <Col>
+            <Card title="Editor" style={{ overflow: 'auto', width: '80vw' }}>
               <Editor
+                // value={dataFilter[0]?.content}
                 wrapperStyle={{
                   minHeight: 500,
                 }}
                 editorStyle={{
                   minHeight: 376,
                 }}
+                contentBlock={'contentState'}
                 editorState={editorContent}
                 onEditorStateChange={this.onEditorStateChange}
               />
             </Card>
           </Col>
-          <Col {...colProps}>
+          {/* <Col {...colProps}>
             <Card title="HTML">
               <textarea
                 style={textareaStyle}
@@ -107,7 +201,7 @@ export default class EditorPage extends Component {
                 }
               />
             </Card>
-          </Col>
+          </Col> */}
           {/* <Col {...colProps}>
             <Card title="Markdown">
               <textarea
