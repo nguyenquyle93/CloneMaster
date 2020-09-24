@@ -107,7 +107,7 @@ export default class EditorPage extends Component {
       borderColor: '#F1F1F1',
       padding: '16px 8px',
     }
-
+    console.log('11111', dataFilter)
     return (
       <Page inner>
         <Row>
