@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import * as firebase from 'firebase'
 import { connectData } from './../../components/FIrebase/firebaseConnect'
 import { Page } from 'components'
-import { message, Row, Col, Card, Button, Input, AutoComplete } from 'antd'
+import { message, Row, Col, Card, Button, Input, AutoComplete,Image } from 'antd'
 const { Meta } = Card
 
 function User(props) {
@@ -14,11 +14,13 @@ function User(props) {
       notes.forEach((element) => {
         const id = element.key
         const title = element.val().title
+        const imageLink = element.val().imageLink
         const content = element.val().content
         const createAt = element.val().createAt
         arrayData.push({
           id: id,
           title: title,
+          imageLink: imageLink,
           content: content,
           createAt: createAt,
         })
@@ -40,23 +42,44 @@ function User(props) {
       {data ?
         <div>
           <Page inner>
-            <Row>
-              <Col md={16}>
+            <Row >
+              <Col lg={18} md={24}>
+                            <Card
+              bordered={false}
+              bodyStyle={{
+                padding: '24px 36px 24px 0',
+              }}
+            >    
                 <h1 style={{ color: "red" }}>{showData?.title}</h1>
                 <div dangerouslySetInnerHTML={{ __html: showData?.content }} />
+                </Card>
               </Col>
-              <Col md={2}>
-              </Col>
-              <Col md={5}>
+              <Col lg={6} md={24}>
                 {data.map(item =>
+                <Row gutter={24}>
+                  <Col lg={24} md={12}>
                   <Card
                     onClick={()=>handleClick(item.id)}
                     hoverable
-                    style={{ width: 240, paddingBottom:10 }}
-                    cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}
+                    style= {{
+                      marginBottom: 10
+                    }}
+                    bodyStyle={{
+                      padding: 10,
+                    }}
+                    cover={    
+                      <Image
+                      width={"100%"}
+                      height={"40%"}
+                      preview={false}
+                      src={item.imageLink || "error"}
+                      fallback="https://images.unsplash.com/photo-1600622269746-258d4124170a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                    />}
                   >
-                    <Meta title={item.title} />
+                    <div style={{text:"bold"}}>{item.title}</div>
                   </Card>
+                  </Col>
+                  </Row>
                 )}
               </Col>
             </Row>
