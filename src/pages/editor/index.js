@@ -1,17 +1,18 @@
 import { Component } from 'react'
 import { Editor, Page } from 'components'
 import { convertToRaw } from 'draft-js'
-import { message, Row, Col, Card, Button, Input, AutoComplete } from 'antd'
+import { message, Row, Col, Card, Button, Input, AutoComplete, Select } from 'antd'
 import { Trans } from '@lingui/react'
 import draftToHtml from 'draftjs-to-html'
 import htmlToDraft from 'html-to-draftjs'
 import { EditorState, ContentState } from 'draft-js'
 import draftToMarkdown from 'draftjs-to-markdown'
 import * as firebase from 'firebase'
-import { connectData } from '../../components/FIrebase/firebaseConnect'
+import { connectData, connectData2, connectData3, connectData4, connectData5, connectData6, newPost } from '../../components/FIrebase/firebaseConnect'
 
-
-export default class EditorPage extends Component {
+const { Option } = Select;
+const page = ["pages1", "pages2", "pages3", "pages4", "pages5", "pages6" ]
+export default class Edit extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -21,11 +22,12 @@ export default class EditorPage extends Component {
       imageLink: null,
       data: [],
       dataFilter: [],
+      page: connectData,
+      pageLink : "pages1",
     }
   }
-
-  componentWillMount() {
-    connectData.on('value', (notes) => {
+  update = (value) => {
+    value.on('value', (notes) => {
       var arrayData = []
       notes.forEach((element) => {
         const id = element.key
@@ -44,7 +46,27 @@ export default class EditorPage extends Component {
       this.setState({ data: arrayData })
     })
   }
-
+  onsuccess = () => {
+    this.setState({
+      editorContent: null,
+      htmlContent: null,
+      title: null,
+      imageLink: null,
+      data: [],
+      dataFilter: [],
+    })
+  }
+  componentWillMount() {
+    this.update(this.state.page)
+  }
+  
+  // componentDidUpdate(){
+  //   componentDidUpdate(this.state.page) {
+  //     if (this.props.name !== prevProps.name) {
+  //       console.log("Name has changed!");
+  //     }
+  //   }
+  // }
   onEditorStateChange = (editorContent) => {
     this.setState({
       editorContent: editorContent,
@@ -64,29 +86,39 @@ export default class EditorPage extends Component {
     })
   }
 
-  handleRequest = () => {
-    connectData.push({
+  handleCreate = () => {
+    this.state.page.push({
       title: this.state.title,
       content: this.state.htmlContent,
       imageLink: this.state.imageLink,
       createAt: new Date().getTime(),
     })
+    newPost.push({
+      title: this.state.title,
+      content: this.state.htmlContent,
+      imageLink: this.state.imageLink,
+      createAt: new Date().getTime(),
+      pageLink: this.state.pageLink
+    })
     message.success(`Bạn đã đăng bài ${this.state.title} thành công !!!`)
+    this.onsuccess()
   }
 
   handleEdit = (id) => {
-    connectData.child(id).set({
+    this.state.page.child(id).set({
       title: this.state.title,
       content: this.state.htmlContent,
       imageLink: this.state.imageLink,
       createAt: this.state.dataFilter[0].createAt,
     })
     message.success(`Bạn đã chỉnh sữa bài ${this.state.title} thành công !!!`)
+    this.onsuccess()
   }
 
   handleDelete = (id) => {
-    connectData.child(id).remove();
+    this.state.page.child(id).remove();
     message.success(`Bạn đã xóa bài ${this.state.dataFilter[0].title} thành công !!!`)
+    this.onsuccess()
   }
 
   onSelect = (value) => {
@@ -100,11 +132,20 @@ export default class EditorPage extends Component {
       imageLink: a[0].imageLink,
       editorContent: EditorState.createWithContent(content),
     })
+  }
 
+  onChangePage = (index) => {
+    const pageSelect = [connectData, connectData2, connectData3, connectData4, connectData5, connectData6]
+    this.onsuccess()
+    this.setState({
+      page: pageSelect[index],
+      pageLink: page[index],
+    })
+    this.update(pageSelect[index])
   }
 
   render() {
-    const { editorContent, dataFilter, title, imageLink } = this.state
+    const { editorContent, dataFilter,data, title, imageLink } = this.state
     const colProps = {
       lg: 12,
       md: 24,
@@ -119,7 +160,7 @@ export default class EditorPage extends Component {
       borderColor: '#F1F1F1',
       padding: '16px 8px',
     }
-    console.log('11111', dataFilter)
+    console.log("11111",data,dataFilter,title,imageLink)
     return (
       <Page inner>
         <Row>
@@ -130,7 +171,7 @@ export default class EditorPage extends Component {
                   size="large"
                   type="primary"
                   style={{ width: 100 }}
-                  onClick={this.handleRequest}
+                  onClick={this.handleCreate}
                 >
                   <Trans>Create</Trans>
                 </Button>
@@ -158,61 +199,74 @@ export default class EditorPage extends Component {
                   <Trans>Delete</Trans>
                 </Button>
               </Col>
-            </Row>
-            <Row>
-              <Col lg={24} md={12}>
-                <AutoComplete
-                  style={{ width: "100%", marginTop:10 }}
+              <Col>
+                <Select
+                  placeholder="Select page"
                   size="large"
-                  placeholder="tile search"
-                  options={this.state.data?.map((item) => {
-                    return { ...item, value: item.title }
-                  })}
-                  onSelect={this.onSelect}
-                  filterOption={(inputValue, option) =>
-                    option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
-                    -1
-                  }
-                />
+                  style={{
+                    width: 200,
+                    marginLeft: '10px',
+                  }}
+                  onChange={this.onChangePage}
+                >
+                  {page.map((item,index) => <Option value={index}>{item}</Option>)}
+                </Select>
               </Col>
             </Row>
-            <Row gutter={24}>
-              <Col  md={24} xl={24}>
-                <Input
-                  size="large"
-                  style={{ width: "100%", marginTop:10 }}
-                  value={title}
-                  onChange={this.handleInputChange}
-                  placeholder="tile input"
-                />
-              </Col>
-              <Col  md={24} xl={24}>
-                <Input
-                  size="large"
-                  value={imageLink}
-                  onChange={this.handleImageLinkChange}
-                  style={{ width: "100%", marginTop:10 }}
-                  placeholder="image link input"
-                />
-              </Col>
-            </Row>
-            <Row gutter={24}>
-              <Col md={24} xl={24}>
-                  <Editor
-                    value={dataFilter[0]?.content}
-                    wrapperStyle={{
-                      overflow:"auto",
-                      height: "100vh"
-                    }}
-                    editorStyle={{
-                      height: "90vh"
-                    }}
-                    contentBlock={'contentState'}
-                    editorState={editorContent}
-                    onEditorStateChange={this.onEditorStateChange}
-                  />
-              </Col>
-              {/* <Col {...colProps}>
+          <Row>
+            <Col lg={24} md={12}>
+              <AutoComplete
+                style={{ width: "100%", marginTop: 10 }}
+                size="large"
+                placeholder="tile search"
+                options={data?.map((item) => {
+                  return { ...item, value: item.title }
+                })}
+                onSelect={this.onSelect}
+                // filterOption={(inputValue, option) =>
+                //   option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+                //   -1
+                // }
+              />
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col md={24} xl={24}>
+              <Input
+                size="large"
+                style={{ width: "100%", marginTop: 10 }}
+                value={title}
+                onChange={this.handleInputChange}
+                placeholder="tile input"
+              />
+            </Col>
+            <Col md={24} xl={24}>
+              <Input
+                size="large"
+                value={imageLink}
+                onChange={this.handleImageLinkChange}
+                style={{ width: "100%", marginTop: 10 }}
+                placeholder="image link input"
+              />
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col md={24} xl={24}>
+              <Editor
+                value={dataFilter[0]?.content}
+                wrapperStyle={{
+                  overflow: "auto",
+                  height: "100vh"
+                }}
+                editorStyle={{
+                  height: "85vh"
+                }}
+                contentBlock={'contentState'}
+                editorState={editorContent}
+                onEditorStateChange={this.onEditorStateChange}
+              />
+            </Col>
+            {/* <Col {...colProps}>
             <Card title="HTML">
               <textarea
                 style={textareaStyle}
@@ -227,7 +281,7 @@ export default class EditorPage extends Component {
               />
             </Card>
           </Col> */}
-              {/* <Col {...colProps}>
+            {/* <Col {...colProps}>
             <Card title="Markdown">
               <textarea
                 style={textareaStyle}
@@ -257,10 +311,10 @@ export default class EditorPage extends Component {
               />
             </Card>
           </Col> */}
-            </Row>
+          </Row>
           </Col>
         </Row>
-      </Page>
+      </Page >
     )
   }
 }

@@ -23,3 +23,10 @@ var firebaseConfig = {
   // })
 
   export const connectData = firebase.database().ref('pages1');
+  export const connectData2 = firebase.database().ref('pages2');
+  export const connectData3 = firebase.database().ref('pages3');
+  export const connectData4 = firebase.database().ref('pages4');
+  export const connectData5 = firebase.database().ref('pages5');
+  export const connectData6 = firebase.database().ref('pages6');
+  export const connectData7 = firebase.database().ref('pages7');
+  export const newPost = firebase.database().ref('newPost');

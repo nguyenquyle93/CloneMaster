@@ -1,162 +1,167 @@
-import React, { PureComponent } from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'umi'
-import { Row, Col, Card } from 'antd'
-import { Color } from 'utils'
-import { Page, ScrollBar } from 'components'
-import {
-  NumberCard,
-  Quote,
-  Sales,
-  Weather,
-  RecentSales,
-  Comments,
-  Completed,
-  Browser,
-  Cpu,
-  User,
-} from './components'
-import styles from './index.less'
-import store from 'store'
+import React, { useState, useEffect } from 'react'
+import * as firebase from 'firebase'
+import { newPost, connectData6 } from './../../components/FIrebase/firebaseConnect'
+import { Page } from 'components'
+import { message, Row, Col, Card, Carousel, Image, Pagination } from 'antd'
+const { Meta } = Card
 
-const bodyStyle = {
-  bodyStyle: {
-    height: 432,
-    background: '#fff',
-  },
-}
+function User(props) {
+  const [data, setData] = useState()
+  const [direction, setDirection] = useState()
+  const [showData, setShowData] = useState()
 
-@connect(({ app, dashboard, loading }) => ({
-  dashboard,
-  loading,
-}))
-class Dashboard extends PureComponent {
-  render() {
-    const userDetail = store.get('user')
-    const { avatar, username } = userDetail
-    const { dashboard, loading } = this.props
-    const {
-      weather,
-      sales,
-      quote,
-      numbers,
-      recentSales,
-      comments,
-      completed,
-      browser,
-      cpu,
-      user,
-    } = dashboard
+  const contentStyle = {
+    height: '40vh',
+    color: '#fff',
+    lineHeight: '160px',
+    textAlign: 'center',
+    background: '#364d79',
+  };
 
-    const numberCards = numbers.map((item, key) => (
-      <Col key={key} lg={6} md={12}>
-        <NumberCard {...item} />
-      </Col>
-    ))
+  useEffect(() => {
+    newPost.on('value', (notes) => {
+      var arrayData = []
+      notes.forEach((element) => {
+        const id = element.key
+        const title = element.val().title
+        const imageLink = element.val().imageLink
+        const content = element.val().content
+        const createAt = element.val().createAt
+        const pageLink = element.val().pageLink
+        arrayData.push({
+          id: id,
+          title: title,
+          imageLink: imageLink,
+          content: content,
+          createAt: createAt,
+          pageLink: pageLink
+        })
+      })
+      arrayData.sort((a, b) => {
+        return parseFloat(b.createAt) - parseFloat(a.createAt)
+      })
+      setData(arrayData.splice(0, 4))
+    })
+    connectData6.on('value', (notes) => {
+      var arrayData = []
+      notes.forEach((element) => {
+        const id = element.key
+        const title = element.val().title
+        const imageLink = element.val().imageLink
+        const content = element.val().content
+        const createAt = element.val().createAt
+        const pageLink = "page7"
+        arrayData.push({
+          id: id,
+          title: title,
+          imageLink: imageLink,
+          content: content,
+          createAt: createAt,
+          pageLink: pageLink
+        })
+      })
+      arrayData.sort((a, b) => {
+        return parseFloat(b.createAt) - parseFloat(a.createAt)
+      })
+      setDirection(arrayData.splice(0, 8))
+    })
+  }, [])
+  const handleClick = (id) => {
+    const selectData = data.find(item => item.id === id)
+    setShowData(selectData)
+  }
+  console.log("111111", direction)
 
-    return (
-      <Page
-        // loading={loading.models.dashboard && sales.length === 0}
-        className={styles.dashboard}
-      >
-        <Row gutter={24}>
-          {numberCards}
-          <Col lg={18} md={24}>
-            <Card
-              bordered={false}
-              bodyStyle={{
-                padding: '24px 36px 24px 0',
-              }}
-            >
-              <Sales data={sales} />
-            </Card>
-          </Col>
-          <Col lg={6} md={24}>
-            <Row gutter={24}>
-              <Col lg={24} md={12}>
-                <Card
-                  bordered={false}
-                  className={styles.weather}
-                  bodyStyle={{
-                    padding: 0,
-                    height: 204,
-                    background: Color.blue,
-                  }}
-                >
-                  <Weather
-                    {...weather}
-                    loading={loading.effects['dashboard/queryWeather']}
-                  />
-                </Card>
+  return (
+    <>
+      {data ?
+        <div>
+          <Page >
+            <Row>
+              <Col>
+            <Carousel autoplay>
+                  <div>
+                    <h3 style={contentStyle}>1</h3>
+                  </div>
+                  <div>
+                    <h3 style={contentStyle}>2</h3>
+                  </div>
+                  <div>
+                    <h3 style={contentStyle}>3</h3>
+                  </div>
+                  <div>
+                    <h3 style={contentStyle}>4</h3>
+                  </div>
+                </Carousel>
+                </Col>
+            </Row>
+            <Row >
+              <Col lg={14} md={24}>
+                    <Row>
+                    <Col>
+                    <h1>New Post</h1>
+                    </Col>
+                    </Row>
+                  <Row gutter={24}>
+                  {data?.map(item =>
+                    <Col lg={12} md={12}>
+                      <Card
+                        onClick={() => handleClick(item)}
+                        hoverable
+                        style={{
+                          marginBottom: 10
+                        }}
+                        bodyStyle={{
+                          padding: 10,
+                        }}
+                        cover={
+                          <Image
+                            width={"100%"}
+                            height={"40%"}
+                            preview={false}
+                            src={item.imageLink || "error"}
+                            fallback="https://images.unsplash.com/photo-1600622269746-258d4124170a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                          />}
+                      >
+                        <div style={{ text: "bold" }}>{item.title}</div>
+                      </Card>
+                    </Col>
+                    )}
+                  </Row>
               </Col>
-              <Col lg={24} md={12}>
-                <Card
-                  bordered={false}
-                  className={styles.quote}
-                  bodyStyle={{
-                    padding: 0,
-                    height: 204,
-                    background: Color.peach,
-                  }}
-                >
-                  <ScrollBar>
-                    <Quote {...quote} />
-                  </ScrollBar>
-                </Card>
+              <Col lg={1} >
+              </Col>
+              <Col lg={9} md={24}>
+              <Row>
+                    <Col>
+                    <h1>Direction Post</h1>
+                    </Col>
+                    </Row>
+                {direction?.map(item =>
+                  <Row gutter={24}>
+                    <Col lg={24} md={12}>
+                      <Card
+                        onClick={() => handleClick(item)}
+                        hoverable
+                        style={{
+                          marginBottom: 10
+                        }}
+                        bodyStyle={{
+                          padding: 10,
+                        }}
+                      >
+                        <h3>{item.title}</h3>
+                      </Card>
+                    </Col>
+                  </Row>
+                )}
               </Col>
             </Row>
-          </Col>
-          <Col lg={12} md={24}>
-            <Card bordered={false} {...bodyStyle}>
-              <RecentSales data={recentSales} />
-            </Card>
-          </Col>
-          <Col lg={12} md={24}>
-            <Card bordered={false} {...bodyStyle}>
-              <ScrollBar>
-                <Comments data={comments} />
-              </ScrollBar>
-            </Card>
-          </Col>
-          <Col lg={24} md={24}>
-            <Card
-              bordered={false}
-              bodyStyle={{
-                padding: '24px 36px 24px 0',
-              }}
-            >
-              <Completed data={completed} />
-            </Card>
-          </Col>
-          <Col lg={8} md={24}>
-            <Card bordered={false} {...bodyStyle}>
-              <Browser data={browser} />
-            </Card>
-          </Col>
-          <Col lg={8} md={24}>
-            <Card bordered={false} {...bodyStyle}>
-              <ScrollBar>
-                <Cpu {...cpu} />
-              </ScrollBar>
-            </Card>
-          </Col>
-          <Col lg={8} md={24}>
-            <Card
-              bordered={false}
-              bodyStyle={{ ...bodyStyle.bodyStyle, padding: 0 }}
-            >
-              <User {...user} avatar={avatar} username={username} />
-            </Card>
-          </Col>
-        </Row>
-      </Page>
-    )
-  }
+          </Page>
+        </div>
+        : ""}
+    </>
+  )
 }
 
-Dashboard.propTypes = {
-  dashboard: PropTypes.object,
-  loading: PropTypes.object,
-}
-
-export default Dashboard
+export default User

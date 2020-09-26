@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import * as firebase from 'firebase'
-import { connectData3 } from './../../components/FIrebase/firebaseConnect'
+import { connectData2 } from './../../components/FIrebase/firebaseConnect'
 import { Page } from 'components'
 import { message, Row, Col, Card, Button, Input, AutoComplete, Image, Pagination } from 'antd'
 const { Meta } = Card
@@ -12,7 +12,7 @@ function User(props) {
   const [dataPage,setDataPage] = useState()
 
   useEffect(() => {
-    connectData3.on('value', (notes) => {
+    connectData2.on('value', (notes) => {
       var arrayData = []
       notes.forEach((element) => {
         const id = element.key
