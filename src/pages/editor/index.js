@@ -5,25 +5,28 @@ import { message, Row, Col, Card, Button, Input, AutoComplete, Select } from 'an
 import { Trans } from '@lingui/react'
 import draftToHtml from 'draftjs-to-html'
 import htmlToDraft from 'html-to-draftjs'
+import { convertFromRaw } from 'draft-js';
 import { EditorState, ContentState } from 'draft-js'
 import draftToMarkdown from 'draftjs-to-markdown'
 import * as firebase from 'firebase'
 import { connectData, connectData2, connectData3, connectData4, connectData5, connectData6, newPost } from '../../components/FIrebase/firebaseConnect'
+import { stateFromHTML } from 'draft-js-import-html'
 
 const { Option } = Select;
-const page = ["pages1", "pages2", "pages3", "pages4", "pages5", "pages6" ]
+const page = ["pages1", "pages2", "pages3", "pages4", "pages5", "pages6"]
+const content = {"entityMap":{},"blocks":[{"key":"637gr","text":"Initialized from content state.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]};
 export default class Edit extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      editorContent: null,
+      editorContent: EditorState.createEmpty(),
       htmlContent: null,
       title: null,
       imageLink: null,
       data: [],
       dataFilter: [],
       page: connectData,
-      pageLink : "pages1",
+      pageLink: "pages1",
     }
   }
   update = (value) => {
@@ -41,8 +44,10 @@ export default class Edit extends Component {
           imageLink: imageLink,
           content: content,
           createAt: createAt,
+          editorContent: content
         })
       })
+      console.log("1111111", arrayData)
       this.setState({ data: arrayData })
     })
   }
@@ -59,7 +64,7 @@ export default class Edit extends Component {
   componentWillMount() {
     this.update(this.state.page)
   }
-  
+
   // componentDidUpdate(){
   //   componentDidUpdate(this.state.page) {
   //     if (this.props.name !== prevProps.name) {
@@ -131,6 +136,7 @@ export default class Edit extends Component {
       title: a[0].title,
       imageLink: a[0].imageLink,
       editorContent: EditorState.createWithContent(content),
+      // editorContent: EditorState.createWithContent(a[0].content),
     })
   }
 
@@ -145,7 +151,8 @@ export default class Edit extends Component {
   }
 
   render() {
-    const { editorContent, dataFilter,data, title, imageLink } = this.state
+    console.log("1111111", data)
+    const { editorContent, dataFilter, data, title, imageLink } = this.state
     const colProps = {
       lg: 12,
       md: 24,
@@ -160,7 +167,7 @@ export default class Edit extends Component {
       borderColor: '#F1F1F1',
       padding: '16px 8px',
     }
-    console.log("11111",data,dataFilter,title,imageLink)
+
     return (
       <Page inner>
         <Row>
@@ -209,64 +216,64 @@ export default class Edit extends Component {
                   }}
                   onChange={this.onChangePage}
                 >
-                  {page.map((item,index) => <Option value={index}>{item}</Option>)}
+                  {page.map((item, index) => <Option value={index}>{item}</Option>)}
                 </Select>
               </Col>
             </Row>
-          <Row>
-            <Col lg={24} md={12}>
-              <AutoComplete
-                style={{ width: "100%", marginTop: 10 }}
-                size="large"
-                placeholder="tile search"
-                options={data?.map((item) => {
-                  return { ...item, value: item.title }
-                })}
-                onSelect={this.onSelect}
+            <Row>
+              <Col lg={24} md={12}>
+                <AutoComplete
+                  style={{ width: "100%", marginTop: 10 }}
+                  size="large"
+                  placeholder="tile search"
+                  options={data?.map((item) => {
+                    return { ...item, value: item.title }
+                  })}
+                  onSelect={this.onSelect}
                 // filterOption={(inputValue, option) =>
                 //   option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
                 //   -1
                 // }
-              />
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col md={24} xl={24}>
-              <Input
-                size="large"
-                style={{ width: "100%", marginTop: 10 }}
-                value={title}
-                onChange={this.handleInputChange}
-                placeholder="tile input"
-              />
-            </Col>
-            <Col md={24} xl={24}>
-              <Input
-                size="large"
-                value={imageLink}
-                onChange={this.handleImageLinkChange}
-                style={{ width: "100%", marginTop: 10 }}
-                placeholder="image link input"
-              />
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col md={24} xl={24}>
-              <Editor
-                value={dataFilter[0]?.content}
-                wrapperStyle={{
-                  overflow: "auto",
-                  height: "100vh"
-                }}
-                editorStyle={{
-                  height: "85vh"
-                }}
-                contentBlock={'contentState'}
-                editorState={editorContent}
-                onEditorStateChange={this.onEditorStateChange}
-              />
-            </Col>
-            {/* <Col {...colProps}>
+                />
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col md={24} xl={24}>
+                <Input
+                  size="large"
+                  style={{ width: "100%", marginTop: 10 }}
+                  value={title}
+                  onChange={this.handleInputChange}
+                  placeholder="tile input"
+                />
+              </Col>
+              <Col md={24} xl={24}>
+                <Input
+                  size="large"
+                  value={imageLink}
+                  onChange={this.handleImageLinkChange}
+                  style={{ width: "100%", marginTop: 10 }}
+                  placeholder="image link input"
+                />
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col md={24} xl={24}>
+                <Editor
+                  value={dataFilter[0]?.content}
+                  wrapperStyle={{
+                    overflow: "auto",
+                    height: "100vh"
+                  }}
+                  editorStyle={{
+                    height: "85vh"
+                  }}
+                  contentBlock={'contentState'}
+                  editorState={editorContent}
+                  onEditorStateChange={this.onEditorStateChange}
+                />
+              </Col>
+              {/* <Col {...colProps}>
             <Card title="HTML">
               <textarea
                 style={textareaStyle}
@@ -281,7 +288,7 @@ export default class Edit extends Component {
               />
             </Card>
           </Col> */}
-            {/* <Col {...colProps}>
+              {/* <Col {...colProps}>
             <Card title="Markdown">
               <textarea
                 style={textareaStyle}
@@ -311,7 +318,7 @@ export default class Edit extends Component {
               />
             </Card>
           </Col> */}
-          </Row>
+            </Row>
           </Col>
         </Row>
       </Page >
