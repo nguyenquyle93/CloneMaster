@@ -1,10 +1,10 @@
 module.exports = {
-  siteName: 'AntD Admin',
-  copyright: 'Ant Design Admin  ©2020 zuiidea',
+  siteName: 'BONG DA SO',
+  copyright: 'A page from Lee',
   logoPath: '/logo.svg',
   apiPrefix: '/api/v1',
   experimentalDecorators: true,
-  fixedHeader: true, // sticky primary layout header
+  fixedHeader: false, // sticky primary layout header
 
   /* Layout configuration, specify which layout to use for route. */
   layouts: [

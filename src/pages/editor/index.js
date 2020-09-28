@@ -13,7 +13,7 @@ import { connectData, connectData2, connectData3, connectData4, connectData5, co
 import { stateFromHTML } from 'draft-js-import-html'
 
 const { Option } = Select;
-const page = ["pages1", "pages2", "pages3", "pages4", "pages5", "pages6"]
+const page = ["user", "post", "request", "chart/ECharts", "chart/highCharts", "pages6","chart/Recharts"]
 const content = {"entityMap":{},"blocks":[{"key":"637gr","text":"Initialized from content state.","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]};
 export default class Edit extends Component {
   constructor(props) {
@@ -26,7 +26,7 @@ export default class Edit extends Component {
       data: [],
       dataFilter: [],
       page: connectData,
-      pageLink: "pages1",
+      pageLink: "user",
     }
   }
   update = (value) => {
@@ -141,7 +141,7 @@ export default class Edit extends Component {
   }
 
   onChangePage = (index) => {
-    const pageSelect = [connectData, connectData2, connectData3, connectData4, connectData5, connectData6]
+    const pageSelect = [connectData, connectData2, connectData3, connectData4, connectData5, connectData6, newPost]
     this.onsuccess()
     this.setState({
       page: pageSelect[index],
@@ -151,7 +151,7 @@ export default class Edit extends Component {
   }
 
   render() {
-    console.log("1111111", data)
+
     const { editorContent, dataFilter, data, title, imageLink } = this.state
     const colProps = {
       lg: 12,

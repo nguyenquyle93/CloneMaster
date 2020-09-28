@@ -4,6 +4,7 @@ import { newPost, connectData6 } from './../../components/FIrebase/firebaseConne
 import { Page } from 'components'
 import { message, Row, Col, Card, Carousel, Image, Pagination } from 'antd'
 const { Meta } = Card
+import { Link } from 'umi';
 
 function User(props) {
   const [data, setData] = useState()
@@ -79,64 +80,66 @@ function User(props) {
           <Page >
             <Row>
               <Col>
-            <Carousel autoplay>
+                <Carousel autoplay>
                   <div>
-                    <h3 style={contentStyle}>1</h3>
+                    <a target="_blank" href="https://kenh14.vn/lo-lem-nha-mc-quyen-linh-khoe-clip-dien-dong-phuc-thoi-ma-gay-sot-zoom-can-canh-nhan-sac-hoa-hau-tuong-lai-20200928193707625.chn"> <h3 style={contentStyle}>1</h3></a>
+                  </div>
+
+                  <a target="_blank" href="https://www.youtube.com/watch?v=wR-FkOwbjr8"> <div> <h3 style={contentStyle}>2</h3> </div></a>
+
+                  <div>
+                  <a target="_blank" href="https://www.youtube.com/watch?v=WKl3SmhSUzU&t=505s"> <div> <h3 style={contentStyle}>3</h3> </div></a>
                   </div>
                   <div>
-                    <h3 style={contentStyle}>2</h3>
-                  </div>
-                  <div>
-                    <h3 style={contentStyle}>3</h3>
-                  </div>
-                  <div>
-                    <h3 style={contentStyle}>4</h3>
+                  <a target="_blank" href="https://www.youtube.com/watch?v=fTXd-DpN3AI"> <div> <h3 style={contentStyle}>4</h3> </div></a>
                   </div>
                 </Carousel>
-                </Col>
+              </Col>
             </Row>
             <Row >
               <Col lg={14} md={24}>
-                    <Row>
-                    <Col>
+                <Row>
+                  <Col>
                     <h1>New Post</h1>
-                    </Col>
-                    </Row>
-                  <Row gutter={24}>
+                  </Col>
+                </Row>
+                <Row gutter={24}>
                   {data?.map(item =>
                     <Col lg={12} md={12}>
-                      <Card
-                        onClick={() => handleClick(item)}
-                        hoverable
-                        style={{
-                          marginBottom: 10
-                        }}
-                        bodyStyle={{
-                          padding: 10,
-                        }}
-                        cover={
-                          <Image
-                            width={"100%"}
-                            height={"40%"}
-                            preview={false}
-                            src={item.imageLink || "error"}
-                            fallback="https://images.unsplash.com/photo-1600622269746-258d4124170a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                          />}
-                      >
-                        <div style={{ text: "bold" }}>{item.title}</div>
-                      </Card>
+                      <Link to={item.pageLink}>
+                        <Card
+                          onClick={() => handleClick(item)}
+                          hoverable
+                          style={{
+                            marginBottom: 10
+                          }}
+                          bodyStyle={{
+                            padding: 10,
+                          }}
+                          cover={
+                            <Image
+                              width={"100%"}
+                              height={"40%"}
+                              preview={false}
+                              src={item.imageLink || "error"}
+                              fallback="https://images.unsplash.com/photo-1600622269746-258d4124170a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                            />}
+                        >
+                          <div style={{ text: "bold" }}>{item.title}</div>
+                        </Card>
+                      </Link>
                     </Col>
-                    )}
-                  </Row>
+                  )}
+                </Row>
               </Col>
               <Col lg={1} >
               </Col>
               <Col lg={9} md={24}>
-              <Row>
-                    <Col>
+                <Row>
+                  <Col>
                     <h1>Direction Post</h1>
-                    </Col>
-                    </Row>
+                  </Col>
+                </Row>
                 {direction?.map(item =>
                   <Row gutter={24}>
                     <Col lg={24} md={12}>
@@ -150,7 +153,7 @@ function User(props) {
                           padding: 10,
                         }}
                       >
-                        <h3>{item.title}</h3>
+                        <Link to="chart/Recharts"><h3>{item.title}</h3></Link>
                       </Card>
                     </Col>
                   </Row>

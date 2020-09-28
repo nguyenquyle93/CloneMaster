@@ -86,9 +86,9 @@ class Login extends PureComponent {
             </Row>
           </Form>
         </div>
-        <div className={styles.footer}>
+        {/* <div className={styles.footer}>
           <GlobalFooter links={footerLinks} copyright={config.copyright} />
-        </div>
+        </div> */}
       </Fragment>
     )
   }
