@@ -21,6 +21,7 @@
     "echarts-liquidfill": "^2.0.2",
     "enquire-js": "^0.2.1",
     "firebase": "^7.21.0",
+    "firebase-tools": "^8.11.2",
     "highcharts-exporting": "^0.1.7",
     "highcharts-more": "^0.1.7",
     "html-to-draftjs": "^1.5.0",
@@ -37,6 +38,7 @@
     "react-helmet": "^6.0.0",
     "react-highcharts": "^16.1.0",
     "react-perfect-scrollbar": "^1.5.0",
+    "react-scripts": "^3.4.3",
     "recharts": "^2.0.0-beta.3",
     "store": "^2.0.0"
   },
@@ -102,7 +104,7 @@
   },
   "scripts": {
     "analyze": "cross-env ANALYZE=1 umi build",
-    "build": "umi build",
+    "build": " umi build",
     "check:model": "umi dva list model",
     "lint:js": "eslint --ext .js src",
     "lint:style": "stylelint \"src/**/*.less\" --syntax less",

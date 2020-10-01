@@ -67,7 +67,7 @@ server
 	{
 		listen       80;
         # Specify an accessible domain name
-		server_name antd-admin.zuiidea.com;
+		server_name kingbet688.net;
         # The directory where the compiled files are stored
 		root  /home/www/antd-admin/dist;
 
@@ -84,7 +84,7 @@ server
 	}
 ```
 
-Restart the web server and access [http://antd-admin.zuiidea.com](http://antd-admin.zuiidea.com) , You will see the correct page.
+Restart the web server and access [http://kingbet688.net](http://kingbet688.net) , You will see the correct page.
 
 ```bash
 nginx -s reload
@@ -93,7 +93,7 @@ nginx -s reload
 Similarly, if you use Caddy as a web server, you can do this in `Caddyfile`:
 
 ```
-antd-admin.zuiidea.com {
+kingbet688.net {
         gzip
         root /home/www/antd-admin/dist
         proxy /api http://localhost:7000
@@ -105,7 +105,7 @@ antd-admin.zuiidea.com {
 }
 
 
-antd-admin.zuiidea.com/public {
+kingbet688.net/public {
         gzip
         root  /home/www/antd-admin/dist/static/public
 }
